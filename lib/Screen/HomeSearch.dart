@@ -5,6 +5,8 @@ import 'package:food2fork/Network/NetworkService.dart';
 import 'package:food2fork/SearchBloc.dart';
 import 'package:food2fork/model/Recipe.dart';
 
+import 'RecipeDetail.dart';
+
 class HomeSearch extends StatefulWidget {
   @override
   _HomeSearchState createState() => _HomeSearchState();
@@ -13,7 +15,7 @@ class HomeSearch extends StatefulWidget {
 class _HomeSearchState extends State<HomeSearch> {
   final TextEditingController _searchRecipeController = TextEditingController();
   NetworkService networkService = NetworkService();
-  late Future<List> _futureRecipe;
+
   List list = [];
   late RecipeBloc recipeBloc;
 
@@ -21,14 +23,11 @@ class _HomeSearchState extends State<HomeSearch> {
   void initState() {
     super.initState();
     recipeBloc = BlocProvider.of<RecipeBloc>(context);
-    recipeBloc.add(RecipeSearchEvent());
+    recipeBloc.add(RecipeSearchEvent(""));
   }
 
   @override
   Widget build(BuildContext context) {
-    // final ze = ;
-    print('futureRecipe : $list');
-
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -38,6 +37,10 @@ class _HomeSearchState extends State<HomeSearch> {
               icon: Icon(Icons.search),
               labelText: 'Search recipe',
             ),
+            textInputAction: TextInputAction.search,
+            onSubmitted: (query){
+              recipeBloc.add(RecipeSearchEvent(_searchRecipeController.text));
+            },
           ),
           elevation: 8,
           actions: [
@@ -48,8 +51,8 @@ class _HomeSearchState extends State<HomeSearch> {
           ],
         ),
         body: BlocBuilder<RecipeBloc, SearchState>(
-          builder: (context, state){
-            if(state is RecipeInitialState){
+          builder: (context, state) {
+            if (state is RecipeInitialState) {
               return Center(child: CircularProgressIndicator());
             } else if (state is RecipeIsLoadingState) {
               return Center(child: CircularProgressIndicator());
@@ -59,39 +62,27 @@ class _HomeSearchState extends State<HomeSearch> {
                   itemCount: recipeList.length,
                   itemBuilder: (context, index) {
                     final item = recipeList[index];
-                    return RecipeCard(
-                        item.featuredImage.toString(), item.title, item.rating);
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => RecipeDetail(item),
+                          ),
+                        );
+                      },
+                      child: RecipeCard(item.featuredImage.toString(),
+                          item.title, item.rating),
+                    );
                   });
-                          } else if (state is RecipeErrorState){
+            } else if (state is RecipeErrorState) {
               return Text('error');
             } else {
               return Text('error');
             }
           },
-        )
-
-
-
-          );
+        ));
   }
 }
-
-// class RecipesList extends StatelessWidget {
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     FutureBuilder<List<Recipe>>(
-//       future: future
-//     )
-//     return ListView.builder(
-//       itemCount: ,
-//       itemBuilder: (BuildContext context, int index) {
-//         return RecipeCard();
-//       },
-//
-//     );
-//   }
-// }
 
 class RecipeCard extends StatelessWidget {
   final String image;

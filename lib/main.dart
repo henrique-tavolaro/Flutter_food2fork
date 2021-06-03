@@ -4,6 +4,7 @@ import 'package:food2fork/Network/NetworkService.dart';
 import 'package:food2fork/SearchBloc.dart';
 
 import 'Screen/HomeSearch.dart';
+import 'Screen/RecipeDetail.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,7 +22,9 @@ class MyApp extends StatelessWidget {
         create: (BuildContext context) {
           return RecipeBloc(NetworkService());
         },
-      child: HomeSearch(),)
+      child: HomeSearch()
+      // ,
+      )
     );
   }
 }

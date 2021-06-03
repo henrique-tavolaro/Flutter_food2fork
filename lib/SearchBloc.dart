@@ -12,6 +12,12 @@ import 'model/Recipe.dart';
 abstract class SearchEvent extends Equatable{}
 
 class RecipeSearchEvent extends SearchEvent{
+  final String query;
+
+  RecipeSearchEvent(this.query);
+
+
+
   @override
   // TODO: implement props
   List<Object?> get props => throw UnimplementedError();
@@ -73,7 +79,7 @@ class RecipeBloc extends Bloc<SearchEvent, SearchState>{
     if(event is RecipeSearchEvent){
       yield RecipeIsLoadingState();
       try{
-        List<Recipe> recipeList = await networkService.getRecipes();
+        List<Recipe> recipeList = await networkService.getRecipes(event.query);
         yield RecipeLoadedState(recipesList: recipeList);
       } catch (e){
         yield RecipeErrorState(message: e.toString());
