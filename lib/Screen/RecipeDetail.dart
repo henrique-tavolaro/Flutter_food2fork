@@ -62,24 +62,6 @@ class RecipeDetail extends StatelessWidget {
                   ),
                 ),
               ),
-              // ListView.builder(
-              //   scrollDirection: Axis.vertical,
-              //   itemCount: 1,
-              //   itemBuilder: (context, index) {
-              //     return Container(
-              //       padding: EdgeInsets.only(top: 8),
-              //       alignment: Alignment.centerLeft,
-              //       child: Text(
-              //         recipe.ingredients[index],
-              //         textAlign: TextAlign.start,
-              //         style: TextStyle(
-              //           fontSize: 16,
-              //           fontWeight: FontWeight.w300,
-              //         ),
-              //       ),
-              //     );
-              //   },
-              // ),
               for (String ingredient in recipe.ingredients)
                 // SingleChildScrollView(
                 //   scrollDirection: Axis.vertical,

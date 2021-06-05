@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,40 +16,66 @@ class HomeSearch extends StatefulWidget {
 class _HomeSearchState extends State<HomeSearch> {
   final TextEditingController _searchRecipeController = TextEditingController();
   NetworkService networkService = NetworkService();
+  bool isSelected = false;
 
-  List list = [];
+  List<String> listCategories = [
+    'Chicken',
+    'Beef',
+    'Soup',
+    'Vegetarian',
+    'Dessert',
+    'Milk',
+    'Vegan',
+    'Pizza',
+    'Donut',
+  ];
   late RecipeBloc recipeBloc;
 
   @override
   void initState() {
     super.initState();
     recipeBloc = BlocProvider.of<RecipeBloc>(context);
-    recipeBloc.add(RecipeSearchEvent(""));
+    recipeBloc.add(RecipeSearchEvent("beef"));
   }
 
   @override
   Widget build(BuildContext context) {
+    print('start: ${isSelected.toString()}');
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title: TextField(
-            controller: _searchRecipeController,
-            decoration: InputDecoration(
-              icon: Icon(Icons.search),
-              labelText: 'Search recipe',
-            ),
-            textInputAction: TextInputAction.search,
-            onSubmitted: (query){
-              recipeBloc.add(RecipeSearchEvent(_searchRecipeController.text));
-            },
+          toolbarHeight: 120,
+          title: Column(
+            children: [
+              TextField(
+                controller: _searchRecipeController,
+                decoration: InputDecoration(
+                  icon: Icon(Icons.search),
+                  labelText: 'Search recipe',
+                ),
+                textInputAction: TextInputAction.search,
+                onSubmitted: (query) {
+                  recipeBloc
+                      .add(RecipeSearchEvent(_searchRecipeController.text));
+                },
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.only(top: 4),
+                child: Row(
+                  children: [ChoiceChipWidget(listCategories, _searchRecipeController)]
+                ),
+              )
+            ],
           ),
           elevation: 8,
-          actions: [
-            Icon(
-              Icons.wb_incandescent_outlined,
-              color: Colors.blue,
-            )
-          ],
+
+          // actions: [
+          //   Icon(
+          //     Icons.wb_incandescent_outlined,
+          //     color: Colors.blue,
+          //   )
+          // ],
         ),
         body: BlocBuilder<RecipeBloc, SearchState>(
           builder: (context, state) {
@@ -66,7 +93,8 @@ class _HomeSearchState extends State<HomeSearch> {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (BuildContext context) => RecipeDetail(item),
+                            builder: (BuildContext context) =>
+                                RecipeDetail(item),
                           ),
                         );
                       },
@@ -111,6 +139,55 @@ class RecipeCard extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+}
+
+
+class ChoiceChipWidget extends StatefulWidget {
+  late final List<String> foodCategories;
+  final TextEditingController searchController;
+  ChoiceChipWidget(this.foodCategories, this.searchController);
+
+  @override
+  _ChoiceChipWidgetState createState() => new _ChoiceChipWidgetState();
+}
+
+class _ChoiceChipWidgetState extends State<ChoiceChipWidget> {
+  String selectedChoice = "";
+
+  _buildChoiceList() {
+    List<Widget> categories = [];
+    widget.foodCategories.forEach((item) {
+      categories.add(Container(
+        padding: const EdgeInsets.all(2.0),
+        child: ChoiceChip(
+          label: Text(item),
+          labelStyle: TextStyle(
+              color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold),
+          backgroundColor: Colors.blue,
+          selectedColor: Colors.grey.shade400,
+          selected: selectedChoice == item,
+          onSelected: (selected) {
+            BlocProvider.of<RecipeBloc>(context).add(RecipeSearchEvent(item));
+            print(item.toString());
+            setState(() {
+              widget.searchController.text = item;
+              selectedChoice = item;
+              // _searchRecipeController.text = 'Chicken';
+              // recipeBloc.add(RecipeSearchEvent('chicken'))
+            });
+          },
+        ),
+      ));
+    });
+    return categories;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      children: _buildChoiceList(),
     );
   }
 }

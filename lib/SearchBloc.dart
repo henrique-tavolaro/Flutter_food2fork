@@ -16,12 +16,9 @@ class RecipeSearchEvent extends SearchEvent{
 
   RecipeSearchEvent(this.query);
 
-
-
   @override
   // TODO: implement props
   List<Object?> get props => throw UnimplementedError();
-
 }
 
 abstract class SearchState extends Equatable{}
@@ -30,7 +27,6 @@ class RecipeInitialState extends SearchState{
   @override
   // TODO: implement props
   List<Object?> get props => [];
-  
 }
 
 
@@ -38,7 +34,6 @@ class RecipeIsLoadingState extends SearchState {
   @override
   // TODO: implement props
   List<Object?> get props => [];
-
 }
 
 
@@ -51,9 +46,7 @@ class RecipeLoadedState extends SearchState{
   @override
   // TODO: implement props
   List<Object?> get props => throw UnimplementedError();
-
 }
-
 
 class RecipeErrorState extends SearchState {
 
@@ -64,8 +57,6 @@ class RecipeErrorState extends SearchState {
   @override
   // TODO: implement props
   List<Object?> get props => throw UnimplementedError();
-
-
 }
 
 class RecipeBloc extends Bloc<SearchEvent, SearchState>{
@@ -86,5 +77,4 @@ class RecipeBloc extends Bloc<SearchEvent, SearchState>{
       }
     }
   }
-
 }
