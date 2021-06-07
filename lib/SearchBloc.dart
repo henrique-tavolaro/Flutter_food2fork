@@ -13,8 +13,9 @@ abstract class SearchEvent extends Equatable{}
 
 class RecipeSearchEvent extends SearchEvent{
   final String query;
+  final int page;
 
-  RecipeSearchEvent(this.query);
+  RecipeSearchEvent(this.query, this.page);
 
   @override
   // TODO: implement props
@@ -70,7 +71,7 @@ class RecipeBloc extends Bloc<SearchEvent, SearchState>{
     if(event is RecipeSearchEvent){
       yield RecipeIsLoadingState();
       try{
-        List<Recipe> recipeList = await networkService.getRecipes(event.query);
+        List<Recipe> recipeList = await networkService.getRecipes(event.query, event.page);
         yield RecipeLoadedState(recipesList: recipeList);
       } catch (e){
         yield RecipeErrorState(message: e.toString());

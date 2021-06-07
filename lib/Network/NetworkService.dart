@@ -5,9 +5,9 @@ import 'package:food2fork/model/Recipe.dart';
 import 'package:http/http.dart' as http;
 
 class NetworkService {
-  Future<List<Recipe>> getRecipes(String query) async {
+  Future<List<Recipe>> getRecipes(String query, int page) async {
     var response = await http.get(
-      Uri.parse('https://food2fork.ca/api/recipe/search/?page=1&query=$query'),
+      Uri.parse('https://food2fork.ca/api/recipe/search/?page=$page&query=$query'),
       headers: {
         HttpHeaders.authorizationHeader:
             'Token 9c8b06d329136da358c2d00e76946b0111ce2c48',

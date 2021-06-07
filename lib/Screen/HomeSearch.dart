@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,8 +14,14 @@ class HomeSearch extends StatefulWidget {
 
 class _HomeSearchState extends State<HomeSearch> {
   final TextEditingController _searchRecipeController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
   NetworkService networkService = NetworkService();
   bool isSelected = false;
+  var page = 1;
+  List<Recipe> recipeList = [];
+  String query = "";
+  String lastSearched = "";
 
   List<String> listCategories = [
     'Chicken',
@@ -35,7 +40,27 @@ class _HomeSearchState extends State<HomeSearch> {
   void initState() {
     super.initState();
     recipeBloc = BlocProvider.of<RecipeBloc>(context);
-    recipeBloc.add(RecipeSearchEvent("beef"));
+    recipeBloc.add(RecipeSearchEvent(query, page));
+
+    _scrollController.addListener(
+      () {
+        if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+          page++;
+          print('page1 $page');
+          recipeBloc.add(RecipeSearchEvent(query, page));
+        }
+        if(_scrollController.position.pixels == _scrollController.position.pixels) {
+          query = _searchRecipeController.text;
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -55,16 +80,33 @@ class _HomeSearchState extends State<HomeSearch> {
                 ),
                 textInputAction: TextInputAction.search,
                 onSubmitted: (query) {
-                  recipeBloc
-                      .add(RecipeSearchEvent(_searchRecipeController.text));
+                  print('recipeList1: $recipeList');
+                  recipeList.clear();
+                  page = 1;
+                  print('page: $page');
+                  // query = _searchRecipeController.text;
+                  setState(() {
+                    query = _searchRecipeController.text;
+                  });
+                  recipeBloc.add(RecipeSearchEvent(query, page));
+
                 },
               ),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.only(top: 4),
-                child: Row(
-                  children: [ChoiceChipWidget(listCategories, _searchRecipeController)]
-                ),
+                child: Row(children: [
+                  ChoiceChipWidget(
+                      listCategories, _searchRecipeController, page, () {
+                    recipeList.clear();
+                    page = 1;
+                    query = _searchRecipeController.text;
+                    setState(() {
+                      query = _searchRecipeController.text;
+                    });
+
+                  })
+                ]),
               )
             ],
           ),
@@ -84,8 +126,12 @@ class _HomeSearchState extends State<HomeSearch> {
             } else if (state is RecipeIsLoadingState) {
               return Center(child: CircularProgressIndicator());
             } else if (state is RecipeLoadedState) {
-              final List<Recipe> recipeList = state.recipesList;
+              recipeList.addAll(state.recipesList);
               return ListView.builder(
+                  controller: _scrollController,
+                  key: _searchRecipeController.text.toLowerCase() == query.toLowerCase()
+                      ? PageStorageKey<String>('page')
+                      : ObjectKey(recipeList[0]),
                   itemCount: recipeList.length,
                   itemBuilder: (context, index) {
                     final item = recipeList[index];
@@ -143,11 +189,14 @@ class RecipeCard extends StatelessWidget {
   }
 }
 
-
 class ChoiceChipWidget extends StatefulWidget {
   late final List<String> foodCategories;
   final TextEditingController searchController;
-  ChoiceChipWidget(this.foodCategories, this.searchController);
+  late final int page;
+  final Function onClick;
+
+  ChoiceChipWidget(
+      this.foodCategories, this.searchController, this.page, this.onClick);
 
   @override
   _ChoiceChipWidgetState createState() => new _ChoiceChipWidgetState();
@@ -155,6 +204,7 @@ class ChoiceChipWidget extends StatefulWidget {
 
 class _ChoiceChipWidgetState extends State<ChoiceChipWidget> {
   String selectedChoice = "";
+  String query = "";
 
   _buildChoiceList() {
     List<Widget> categories = [];
@@ -169,13 +219,14 @@ class _ChoiceChipWidgetState extends State<ChoiceChipWidget> {
           selectedColor: Colors.grey.shade400,
           selected: selectedChoice == item,
           onSelected: (selected) {
-            BlocProvider.of<RecipeBloc>(context).add(RecipeSearchEvent(item));
-            print(item.toString());
+            widget.onClick();
+            BlocProvider.of<RecipeBloc>(context)
+                .add(RecipeSearchEvent(item, widget.page));
             setState(() {
               widget.searchController.text = item;
               selectedChoice = item;
-              // _searchRecipeController.text = 'Chicken';
-              // recipeBloc.add(RecipeSearchEvent('chicken'))
+              // query = item;
+              // print('sss $query');
             });
           },
         ),
