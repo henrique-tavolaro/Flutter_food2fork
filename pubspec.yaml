@@ -25,6 +25,7 @@ dependencies:
   flutter:
     sdk: flutter
   http:
+  dio:
   equatable:
   flutter_bloc:
 

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +17,7 @@ class _HomeSearchState extends State<HomeSearch> {
   final TextEditingController _searchRecipeController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  NetworkService networkService = NetworkService();
+  NetworkService networkService = NetworkService(Dio());
   bool isSelected = false;
   var page = 1;
   List<Recipe> recipeList = [];

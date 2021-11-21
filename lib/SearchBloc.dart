@@ -72,8 +72,10 @@ class RecipeBloc extends Bloc<SearchEvent, SearchState>{
       yield RecipeIsLoadingState();
       try{
         List<Recipe> recipeList = await networkService.getRecipes(event.query, event.page);
+        print('asasd $recipeList');
         yield RecipeLoadedState(recipesList: recipeList);
       } catch (e){
+        print('asasd $e');
         yield RecipeErrorState(message: e.toString());
       }
     }
